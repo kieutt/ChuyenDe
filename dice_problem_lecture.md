@@ -1,0 +1,657 @@
+# CHUYÊN ĐỀ: BÀI TOÁN XÚC XẮC - TÌM MẶT ĐỐI DIỆN
+
+**Dành cho học sinh lớp chuyên Tin học**
+
+---
+
+## 📋 MỤC LỤC
+1. [Giới thiệu bài toán](#1-giới-thiệu-bài-toán)
+2. [Phân tích toán học](#2-phân-tích-toán-học) 
+3. [Các phương pháp giải](#3-các-phương-pháp-giải)
+4. [Code minh họa](#4-code-minh-họa)
+5. [Bài toán mở rộng](#5-bài-toán-mở-rộng)
+6. [Ứng dụng thực tế](#6-ứng-dụng-thực-tế)
+7. [Bài tập thực hành](#7-bài-tập-thực-hành)
+
+---
+
+## 1. GIỚI THIỆU BÀI TOÁN
+
+### 📝 Phát biểu bài toán
+Cho một xúc xắc hình lập phương có 6 mặt, mỗi mặt có một số từ 1 đến 6. Biết số trên một mặt của xúc xắc, hãy tìm số trên mặt đối diện với nó.
+
+### 🎲 Cấu trúc xúc xắc chuẩn
+Trong một xúc xắc chuẩn:
+```
+Mặt 1 ↔ Mặt 6
+Mặt 2 ↔ Mặt 5  
+Mặt 3 ↔ Mặt 4
+```
+
+### 📚 Ví dụ minh họa
+```
+Input: n = 2  → Output: 5
+Input: n = 6  → Output: 1
+Input: n = 3  → Output: 4
+```
+
+---
+
+## 2. PHÂN TÍCH TOÁN HỌC
+
+### 🔍 Quan sát then chốt
+**Tính chất quan trọng**: Tổng hai mặt đối diện của xúc xắc luôn bằng **7**
+
+Chứng minh:
+- 1 + 6 = 7
+- 2 + 5 = 7  
+- 3 + 4 = 7
+
+### 🧮 Công thức toán học
+```
+Nếu mặt hiện tại là n, thì mặt đối diện là: 7 - n
+```
+
+### 📊 Bảng tra cứu
+| Mặt cho trước | Mặt đối diện | Tổng |
+|---------------|--------------|------|
+| 1             | 6            | 7    |
+| 2             | 5            | 7    |
+| 3             | 4            | 7    |
+| 4             | 3            | 7    |
+| 5             | 2            | 7    |
+| 6             | 1            | 7    |
+
+---
+
+## 3. CÁC PHƯƠNG PHÁP GIẢI
+
+### 3.1. Phương pháp Naive - If-Else
+**Độ phức tạp**: O(1)  
+**Ý tưởng**: Sử dụng chuỗi if-else để kiểm tra từng trường hợp
+
+**Ưu điểm**:
+- Dễ hiểu, dễ implement
+- Có thể mở rộng cho xúc xắc không chuẩn
+
+**Nhược điểm**:
+- Code dài, khó bảo trì
+- Không tận dụng được tính chất toán học
+
+### 3.2. Phương pháp Optimal - Công thức toán học  
+**Độ phức tạp**: O(1)  
+**Ý tưởng**: Sử dụng công thức `result = 7 - n`
+
+**Ưu điểm**:
+- Code ngắn gọn, elegant
+- Tận dụng tính chất toán học
+- Dễ nhớ, dễ áp dụng
+
+**Nhược điểm**:
+- Chỉ áp dụng được cho xúc xắc chuẩn
+
+---
+
+## 4. CODE MINH HỌA
+
+### 4.1. Phương pháp Naive - C++
+
+```cpp
+#include <iostream>
+#include <vector>
+using namespace std;
+
+/**
+ * Phương pháp Naive: Sử dụng if-else
+ * Độ phức tạp: O(1) - nhưng code dài
+ */
+int oppositeFaceNaive(int n) {
+    // Kiểm tra từng trường hợp cụ thể
+    if (n == 1) {
+        return 6;
+    } else if (n == 2) {
+        return 5;
+    } else if (n == 3) {
+        return 4;
+    } else if (n == 4) {
+        return 3;
+    } else if (n == 5) {
+        return 2;
+    } else { // n == 6
+        return 1;
+    }
+}
+
+/**
+ * Phương pháp Optimal: Sử dụng công thức toán học
+ * Độ phức tạp: O(1) - code ngắn gọn
+ */
+int oppositeFaceOptimal(int n) {
+    // Tận dụng tính chất: tổng hai mặt đối diện = 7
+    return 7 - n;
+}
+
+/**
+ * Hàm kiểm tra tính đúng đắn của hai phương pháp
+ */
+void validateMethods() {
+    cout << "=== KIỂM TRA TÍNH ĐÚNG ĐẮN ===" << endl;
+    cout << "Mặt | Naive | Optimal | Kết quả" << endl;
+    cout << "----|-------|---------|--------" << endl;
+    
+    bool allCorrect = true;
+    for (int i = 1; i <= 6; i++) {
+        int naive = oppositeFaceNaive(i);
+        int optimal = oppositeFaceOptimal(i);
+        bool correct = (naive == optimal);
+        
+        cout << " " << i << "  |   " << naive << "   |    " 
+             << optimal << "    |   " << (correct ? "✓" : "✗") << endl;
+        
+        if (!correct) allCorrect = false;
+    }
+    
+    cout << "\nKết luận: " << (allCorrect ? "Cả hai phương pháp đều chính xác!" 
+                                          : "Có lỗi trong implementation!") << endl;
+}
+
+/**
+ * Hàm demo với giải thích chi tiết
+ */
+void demonstrateWithExplanation(int n) {
+    cout << "\n=== DEMO CHI TIẾT ===" << endl;
+    cout << "Input: Mặt xúc xắc = " << n << endl;
+    
+    // Phương pháp Naive
+    cout << "\n1. Phương pháp Naive (if-else):" << endl;
+    int naiveResult = oppositeFaceNaive(n);
+    cout << "   → Kiểm tra if-else → Kết quả: " << naiveResult << endl;
+    
+    // Phương pháp Optimal  
+    cout << "\n2. Phương pháp Optimal (công thức):" << endl;
+    cout << "   → Áp dụng công thức: 7 - " << n << " = ";
+    int optimalResult = oppositeFaceOptimal(n);
+    cout << optimalResult << endl;
+    
+    // Kiểm tra
+    cout << "\n3. Kiểm tra:" << endl;
+    cout << "   → Tổng: " << n << " + " << optimalResult << " = " 
+         << (n + optimalResult) << endl;
+    cout << "   → " << (n + optimalResult == 7 ? "✓ Đúng quy tắc!" 
+                                               : "✗ Sai quy tắc!") << endl;
+}
+
+int main() {
+    cout << "🎲 CHUYÊN ĐỀ: BÀI TOÁN XÚC XẮC 🎲" << endl;
+    
+    // Kiểm tra tính đúng đắn
+    validateMethods();
+    
+    // Demo chi tiết
+    vector<int> testCases = {1, 2, 3, 4, 5, 6};
+    for (int testCase : testCases) {
+        demonstrateWithExplanation(testCase);
+    }
+    
+    return 0;
+}
+```
+
+### 4.2. Phương pháp Optimal - Python
+
+```python
+def opposite_face_naive(n):
+    """
+    Phương pháp Naive: Sử dụng if-else
+    
+    Args:
+        n (int): Số trên mặt xúc xắc (1-6)
+    
+    Returns:
+        int: Số trên mặt đối diện
+    """
+    # Kiểm tra từng trường hợp cụ thể
+    if n == 1:
+        return 6
+    elif n == 2:
+        return 5
+    elif n == 3:
+        return 4
+    elif n == 4:
+        return 3
+    elif n == 5:
+        return 2
+    else:  # n == 6
+        return 1
+
+def opposite_face_optimal(n):
+    """
+    Phương pháp Optimal: Sử dụng công thức toán học
+    
+    Args:
+        n (int): Số trên mặt xúc xắc (1-6)
+    
+    Returns:
+        int: Số trên mặt đối diện
+    """
+    # Tận dụng tính chất: tổng hai mặt đối diện = 7
+    return 7 - n
+
+def validate_methods():
+    """Kiểm tra tính đúng đắn của hai phương pháp"""
+    print("=== KIỂM TRA TÍNH ĐÚNG ĐẮN ===")
+    print("Mặt | Naive | Optimal | Kết quả")
+    print("----|-------|---------|--------")
+    
+    all_correct = True
+    for i in range(1, 7):
+        naive = opposite_face_naive(i)
+        optimal = opposite_face_optimal(i)
+        correct = (naive == optimal)
+        
+        print(f" {i}  |   {naive}   |    {optimal}    |   {'✓' if correct else '✗'}")
+        
+        if not correct:
+            all_correct = False
+    
+    print(f"\nKết luận: {'Cả hai phương pháp đều chính xác!' if all_correct else 'Có lỗi trong implementation!'}")
+
+def demonstrate_with_explanation(n):
+    """Demo với giải thích chi tiết"""
+    print(f"\n=== DEMO CHI TIẾT ===")
+    print(f"Input: Mặt xúc xắc = {n}")
+    
+    # Phương pháp Naive
+    print(f"\n1. Phương pháp Naive (if-else):")
+    naive_result = opposite_face_naive(n)
+    print(f"   → Kiểm tra if-else → Kết quả: {naive_result}")
+    
+    # Phương pháp Optimal
+    print(f"\n2. Phương pháp Optimal (công thức):")
+    print(f"   → Áp dụng công thức: 7 - {n} = ", end="")
+    optimal_result = opposite_face_optimal(n)
+    print(optimal_result)
+    
+    # Kiểm tra
+    print(f"\n3. Kiểm tra:")
+    total = n + optimal_result
+    print(f"   → Tổng: {n} + {optimal_result} = {total}")
+    print(f"   → {'✓ Đúng quy tắc!' if total == 7 else '✗ Sai quy tắc!'}")
+
+class DiceProblemSolver:
+    """Class để giải bài toán xúc xắc với nhiều tính năng"""
+    
+    def __init__(self):
+        self.dice_pairs = {1: 6, 2: 5, 3: 4, 4: 3, 5: 2, 6: 1}
+    
+    def get_opposite_face(self, n, method="optimal"):
+        """
+        Tìm mặt đối diện của xúc xắc
+        
+        Args:
+            n (int): Số trên mặt xúc xắc (1-6)
+            method (str): Phương pháp giải ("naive" hoặc "optimal")
+        
+        Returns:
+            int: Số trên mặt đối diện
+        """
+        if not (1 <= n <= 6):
+            raise ValueError("Số trên mặt xúc xắc phải từ 1 đến 6")
+        
+        if method == "naive":
+            return opposite_face_naive(n)
+        elif method == "optimal":
+            return opposite_face_optimal(n)
+        else:
+            raise ValueError("Phương pháp phải là 'naive' hoặc 'optimal'")
+    
+    def get_all_pairs(self):
+        """Trả về tất cả các cặp mặt đối diện"""
+        return self.dice_pairs
+    
+    def visualize_dice(self, n):
+        """Hiển thị trực quan xúc xắc"""
+        opposite = self.get_opposite_face(n)
+        
+        print(f"\n🎲 TRỰC QUAN XÚC XẮC:")
+        print(f"   Mặt trên: {n}")
+        print(f"   ┌─────┐")
+        print(f"   │  {n}  │")
+        print(f"   └─────┘")
+        print(f"   Mặt dưới: {opposite}")
+        print(f"   (không nhìn thấy)")
+
+# Chương trình chính
+if __name__ == "__main__":
+    print("🎲 CHUYÊN ĐỀ: BÀI TOÁN XÚC XẮC 🎲")
+    
+    # Kiểm tra tính đúng đắn
+    validate_methods()
+    
+    # Demo chi tiết cho tất cả test cases
+    test_cases = [1, 2, 3, 4, 5, 6]
+    for test_case in test_cases:
+        demonstrate_with_explanation(test_case)
+    
+    # Demo sử dụng class
+    print("\n" + "="*50)
+    print("DEMO SỬ DỤNG CLASS")
+    print("="*50)
+    
+    solver = DiceProblemSolver()
+    
+    # Hiển thị tất cả cặp
+    print("\nTất cả các cặp mặt đối diện:")
+    for face, opposite in solver.get_all_pairs().items():
+        print(f"  Mặt {face} ↔ Mặt {opposite}")
+    
+    # Trực quan hóa
+    for i in [2, 5]:
+        solver.visualize_dice(i)
+```
+
+---
+
+## 5. BÀI TOÁN MỞ RỘNG
+
+### 5.1. Xúc xắc không chuẩn
+**Bài toán**: Cho xúc xắc có 6 mặt với các số bất kỳ, biết các cặp mặt đối diện. Tìm mặt đối diện của một mặt cho trước.
+
+```cpp
+#include <iostream>
+#include <unordered_map>
+#include <vector>
+using namespace std;
+
+class CustomDice {
+private:
+    unordered_map<int, int> oppositeMap;
+    
+public:
+    /**
+     * Constructor: Khởi tạo xúc xắc với các cặp mặt đối diện
+     * @param pairs: Vector chứa các cặp (mặt1, mặt2)
+     */
+    CustomDice(vector<pair<int, int>>& pairs) {
+        for (auto& p : pairs) {
+            oppositeMap[p.first] = p.second;
+            oppositeMap[p.second] = p.first;
+        }
+    }
+    
+    /**
+     * Tìm mặt đối diện
+     * @param face: Mặt hiện tại
+     * @return: Mặt đối diện, -1 nếu không tìm thấy
+     */
+    int getOppositeFace(int face) {
+        if (oppositeMap.find(face) != oppositeMap.end()) {
+            return oppositeMap[face];
+        }
+        return -1; // Không tìm thấy
+    }
+    
+    /**
+     * Hiển thị tất cả các cặp mặt đối diện
+     */
+    void displayPairs() {
+        cout << "Các cặp mặt đối diện:" << endl;
+        set<pair<int, int>> displayed;
+        
+        for (auto& p : oppositeMap) {
+            pair<int, int> current = {min(p.first, p.second), 
+                                    max(p.first, p.second)};
+            if (displayed.find(current) == displayed.end()) {
+                cout << "  " << current.first << " ↔ " 
+                     << current.second << endl;
+                displayed.insert(current);
+            }
+        }
+    }
+};
+
+int main() {
+    // Ví dụ: Xúc xắc với các số {2, 4, 6, 8, 10, 12}
+    vector<pair<int, int>> customPairs = {
+        {2, 12},   // 2 đối diện 12
+        {4, 10},   // 4 đối diện 10  
+        {6, 8}     // 6 đối diện 8
+    };
+    
+    CustomDice customDice(customPairs);
+    
+    cout << "🎲 XÚC XẮC KHÔNG CHUẨN 🎲" << endl;
+    customDice.displayPairs();
+    
+    // Test
+    vector<int> testFaces = {2, 4, 6, 8, 10, 12};
+    cout << "\nKiểm tra:" << endl;
+    for (int face : testFaces) {
+        int opposite = customDice.getOppositeFace(face);
+        cout << "Mặt " << face << " → Mặt đối diện: " << opposite << endl;
+    }
+    
+    return 0;
+}
+```
+
+### 5.2. Xúc xắc đa chiều
+**Bài toán**: Mở rộng cho xúc xắc n-chiều (n mặt)
+
+```python
+class NDimensionalDice:
+    """Xúc xắc n-chiều với n mặt"""
+    
+    def __init__(self, n):
+        """
+        Khởi tạo xúc xắc n-chiều
+        Args:
+            n (int): Số mặt của xúc xắc (phải là số chẵn)
+        """
+        if n % 2 != 0:
+            raise ValueError("Số mặt phải là số chẵn để có thể ghép cặp")
+        
+        self.n = n
+        self.sum_constant = n + 1  # Tổng của hai mặt đối diện
+        
+    def get_opposite_face(self, face):
+        """
+        Tìm mặt đối diện
+        Args:
+            face (int): Mặt hiện tại (1 đến n)
+        Returns:
+            int: Mặt đối diện
+        """
+        if not (1 <= face <= self.n):
+            raise ValueError(f"Mặt phải từ 1 đến {self.n}")
+        
+        return self.sum_constant - face
+    
+    def get_all_pairs(self):
+        """Trả về tất cả các cặp mặt đối diện"""
+        pairs = []
+        for i in range(1, self.n // 2 + 1):
+            opposite = self.get_opposite_face(i)
+            pairs.append((i, opposite))
+        return pairs
+    
+    def visualize(self):
+        """Hiển thị cấu trúc xúc xắc"""
+        print(f"\n🎲 XÚC XẮC {self.n}-CHIỀU:")
+        print(f"   Tổng hai mặt đối diện: {self.sum_constant}")
+        print("   Các cặp mặt đối diện:")
+        
+        for face1, face2 in self.get_all_pairs():
+            print(f"     Mặt {face1} ↔ Mặt {face2}")
+
+# Demo
+if __name__ == "__main__":
+    # Test với các xúc xắc khác nhau
+    dice_types = [6, 8, 10, 12, 20]  # Các loại xúc xắc phổ biến
+    
+    print("🎲 XÚC XẮC ĐA CHIỀU 🎲")
+    
+    for n in dice_types:
+        dice = NDimensionalDice(n)
+        dice.visualize()
+        
+        # Test một vài mặt
+        test_faces = [1, n//2, n]
+        print(f"   Kiểm tra:")
+        for face in test_faces:
+            opposite = dice.get_opposite_face(face)
+            print(f"     Mặt {face} → Mặt {opposite} (tổng: {face + opposite})")
+        print()
+```
+
+---
+
+## 6. ỨNG DỤNG THỰC TẾ
+
+### 6.1. Game Development
+```cpp
+/**
+ * Ứng dụng trong phát triển game
+ * Tính toán xác suất và logic game
+ */
+class GameDice {
+private:
+    int currentTop;
+    int currentBottom;
+    
+public:
+    GameDice() : currentTop(1), currentBottom(6) {}
+    
+    void rollToFace(int newTop) {
+        currentTop = newTop;
+        currentBottom = 7 - newTop;
+    }
+    
+    int getCurrentTop() { return currentTop; }
+    int getCurrentBottom() { return currentBottom; }
+    
+    // Tính xác suất xuất hiện mặt đối diện
+    double probabilityOfOpposite() {
+        return 1.0 / 6.0; // 1/6 cho xúc xắc chuẩn
+    }
+};
+```
+
+### 6.2. Cryptography và Random Number Generation
+```python
+class DiceCrypto:
+    """Sử dụng tính chất xúc xắc trong mã hóa"""
+    
+    @staticmethod
+    def simple_encrypt(message, key_face):
+        """
+        Mã hóa đơn giản sử dụng tính chất xúc xắc
+        Args:
+            message (str): Thông điệp cần mã hóa
+            key_face (int): Mặt xúc xắc làm khóa (1-6)
+        Returns:
+            str: Thông điệp đã mã hóa
+        """
+        opposite_face = 7 - key_face
+        shift = opposite_face
+        
+        encrypted = ""
+        for char in message:
+            if char.isalpha():
+                # Shift ký tự theo alphabet
+                base = ord('A') if char.isupper() else ord('a')
+                shifted = (ord(char) - base + shift) % 26
+                encrypted += chr(base + shifted)
+            else:
+                encrypted += char
+        
+        return encrypted
+    
+    @staticmethod
+    def simple_decrypt(encrypted_message, key_face):
+        """Giải mã thông điệp"""
+        opposite_face = 7 - key_face
+        shift = -opposite_face  # Shift ngược lại
+        
+        decrypted = ""
+        for char in encrypted_message:
+            if char.isalpha():
+                base = ord('A') if char.isupper() else ord('a')
+                shifted = (ord(char) - base + shift) % 26
+                decrypted += chr(base + shifted)
+            else:
+                decrypted += char
+        
+        return decrypted
+
+# Demo mã hóa
+crypto = DiceCrypto()
+message = "HELLO WORLD"
+key = 3
+
+encrypted = crypto.simple_encrypt(message, key)
+decrypted = crypto.simple_decrypt(encrypted, key)
+
+print(f"Thông điệp gốc: {message}")
+print(f"Khóa (mặt xúc xắc): {key}")
+print(f"Mặt đối diện: {7 - key}")
+print(f"Thông điệp mã hóa: {encrypted}")
+print(f"Thông điệp giải mã: {decrypted}")
+```
+
+---
+
+## 7. BÀI TẬP THỰC HÀNH
+
+### 📝 Bài tập cơ bản
+
+**Bài 1**: Viết chương trình nhập một số từ 1 đến 6, xuất ra mặt đối diện và giải thích.
+
+**Bài 2**: So sánh hiệu suất của phương pháp Naive và Optimal bằng cách chạy 1 triệu lần.
+
+**Bài 3**: Viết hàm kiểm tra xem một cặp số có phải là mặt đối diện của xúc xắc chuẩn không.
+
+### 🔥 Bài tập nâng cao
+
+**Bài 4**: Cho trước tất cả 6 mặt của xúc xắc dưới dạng mảng, sắp xếp chúng thành 3 cặp đối diện.
+
+**Bài 5**: Viết class `DiceSimulator` mô phỏng việc tung xúc xắc nhiều lần và thống kê tần suất xuất hiện của từng cặp mặt đối diện.
+
+**Bài 6**: Thiết kế thuật toán để xác định xem hai xúc xắc có giống nhau không (cùng cách sắp xếp các số).
+
+### 🚀 Bài tập thách thức
+
+**Bài 7**: Viết chương trình giải bài toán "Dice Unfolding": Cho một hình triển khai 2D của xúc xắc, xác định số trên mỗi mặt khi gấp lại.
+
+**Bài 8**: Tối ưu hóa bài toán xúc xắc cho trường hợp có n xúc xắc, tìm tổng các mặt đối diện nhanh nhất.
+
+**Bài 9**: Viết thuật toán AI để dự đoán mặt tiếp theo của xúc xắc dựa trên lịch sử các lần tung trước (mô phỏng xúc xắc không công bằng).
+
+---
+
+## 8. TÓM TẮT VÀ KẾT LUẬN
+
+### 🎯 Điểm quan trọng cần nhớ
+
+1. **Tính chất cốt lõi**: Tổng hai mặt đối diện của xúc xắc chuẩn = 7
+2. **Công thức tối ưu**: `opposite = 7 - current`
+3. **Độ phức tạp**: O(1) cho cả thời gian và không gian
+4. **Tính ứng dụng**: Rộng rãi trong game, mã hóa, mô phỏng
+
+### 🔧 Kỹ năng đã học
+
+- **Tư duy toán học**: Nhận ra quy luật từ dữ liệu cụ thể
+- **Tối ưu hóa code**: Từ giải pháp naive đến optimal
+- **Thiết kế class**: OOP cho bài toán mở rộng
+- **Ứng dụng thực tế**: Kết nối lý thuyết với thực tiễn
+
+### 📈 Bước tiếp theo
+
+1. Áp dụng tư duy tương tự cho các bài toán khác
+2. Nghiên cứu thêm về các tính chất hình học của đa diện
+3. Tìm hiểu ứng dụng trong machine learning và AI
+4. Thực hành với các bài tập nâng cao
+
+---
+
+**🎓 Kết thúc chuyên đề. Chúc các em học tốt và áp dụng hiệu quả!**
