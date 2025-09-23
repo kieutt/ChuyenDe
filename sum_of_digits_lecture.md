@@ -1,0 +1,313 @@
+# CHUYÊN ĐỀ: TÍNH TỔNG CÁC CHỮ SỐ
+
+**Dành cho học sinh lớp 10 chuyên Tin học**
+
+---
+
+## 📋 MỤC LỤC
+1. [Giới thiệu bài toán](#1-giới-thiệu-bài-toán)
+2. [Phân tích bài toán](#2-phân-tích-bài-toán)
+3. [Các phương pháp giải](#3-các-phương-pháp-giải)
+4. [Code minh họa](#4-code-minh-họa)
+5. [So sánh các phương pháp](#5-so-sánh-các-phương-pháp)
+6. [Bài tập thực hành](#6-bài-tập-thực-hành)
+
+---
+
+## 1. GIỚI THIỆU BÀI TOÁN
+
+### 📝 Phát biểu bài toán
+Cho một số nguyên dương n, hãy tính tổng tất cả các chữ số của n.
+
+### 📊 Ví dụ
+```
+Input: n = 687
+Output: 21
+Giải thích: 6 + 8 + 7 = 21
+
+Input: n = 12
+Output: 3
+Giải thích: 1 + 2 = 3
+
+Input: n = 12345
+Output: 15
+Giải thích: 1 + 2 + 3 + 4 + 5 = 15
+```
+
+---
+
+## 2. PHÂN TÍCH BÀI TOÁN
+
+### 🔍 Ý tưởng chính
+Để tính tổng các chữ số, ta cần:
+1. **Tách từng chữ số** từ số ban đầu
+2. **Cộng dồn** các chữ số lại với nhau
+
+### 🎯 Các cách tách chữ số
+- **Cách 1**: Sử dụng phép chia lấy dư (%) và chia nguyên (/)
+- **Cách 2**: Sử dụng đệ quy
+- **Cách 3**: Chuyển thành chuỗi và duyệt từng ký tự
+
+---
+
+## 3. CÁC PHƯƠNG PHÁP GIẢI
+
+### 3.1. Phương pháp 1: Sử dụng vòng lặp
+**Độ phức tạp**: O(log₁₀(n)) - số chữ số của n
+
+**Ý tưởng**:
+- Dùng `n % 10` để lấy chữ số cuối
+- Dùng `n / 10` để loại bỏ chữ số cuối
+- Lặp cho đến khi n = 0
+
+### 3.2. Phương pháp 2: Sử dụng đệ quy
+**Độ phức tạp**: O(log₁₀(n))
+
+**Ý tưởng**:
+- **Base case**: Nếu n = 0, trả về 0
+- **Recursive case**: Trả về `(n % 10) + sumOfDigits(n / 10)`
+
+### 3.3. Phương pháp 3: Chuyển thành chuỗi
+**Độ phức tạp**: O(log₁₀(n))
+
+**Ý tưởng**:
+- Chuyển số thành chuỗi
+- Duyệt từng ký tự, chuyển về số và cộng dồn
+
+---
+
+## 4. CODE MINH HỌA
+
+### 4.1. Code C++
+
+```cpp
+#include <iostream>
+#include <string>
+using namespace std;
+
+/**
+ * Phương pháp 1: Sử dụng vòng lặp
+ */
+int sumOfDigitsLoop(int n) {
+    int sum = 0;
+    
+    while (n != 0) {
+        sum += n % 10;  // Lấy chữ số cuối
+        n /= 10;        // Loại bỏ chữ số cuối
+    }
+    
+    return sum;
+}
+
+/**
+ * Phương pháp 2: Sử dụng đệ quy
+ */
+int sumOfDigitsRecursive(int n) {
+    // Base case
+    if (n == 0) {
+        return 0;
+    }
+    
+    // Recursive case
+    return (n % 10) + sumOfDigitsRecursive(n / 10);
+}
+
+/**
+ * Phương pháp 3: Chuyển thành chuỗi
+ */
+int sumOfDigitsString(int n) {
+    string s = to_string(n);
+    int sum = 0;
+    
+    for (char digit : s) {
+        sum += digit - '0';  // Chuyển char thành int
+    }
+    
+    return sum;
+}
+
+/**
+ * Hàm demo với giải thích chi tiết
+ */
+void demoSumOfDigits(int n) {
+    cout << "\n=== DEMO: Tính tổng chữ số của " << n << " ===" << endl;
+    
+    // Hiển thị quá trình tính bằng vòng lặp
+    cout << "\nPhương pháp 1 - Vòng lặp:" << endl;
+    int temp = n;
+    int sum = 0;
+    
+    while (temp != 0) {
+        int digit = temp % 10;
+        sum += digit;
+        cout << "  " << temp << " % 10 = " << digit 
+             << ", tổng = " << sum 
+             << ", còn lại = " << temp / 10 << endl;
+        temp /= 10;
+    }
+    
+    cout << "Kết quả: " << sum << endl;
+    
+    // So sánh các phương pháp
+    cout << "\nSo sánh kết quả:" << endl;
+    cout << "  Vòng lặp: " << sumOfDigitsLoop(n) << endl;
+    cout << "  Đệ quy:   " << sumOfDigitsRecursive(n) << endl;
+    cout << "  Chuỗi:    " << sumOfDigitsString(n) << endl;
+}
+
+int main() {
+    cout << "CHUYÊN ĐỀ: TÍNH TỔNG CÁC CHỮ SỐ" << endl;
+    cout << "=================================" << endl;
+    
+    // Test với các ví dụ
+    demoSumOfDigits(687);
+    demoSumOfDigits(12);
+    demoSumOfDigits(12345);
+    
+    return 0;
+}
+```
+
+### 4.2. Code Python
+
+```python
+def sum_of_digits_loop(n):
+    """
+    Phương pháp 1: Sử dụng vòng lặp
+    """
+    total = 0
+    
+    while n != 0:
+        total += n % 10  # Lấy chữ số cuối
+        n //= 10         # Loại bỏ chữ số cuối
+    
+    return total
+
+def sum_of_digits_recursive(n):
+    """
+    Phương pháp 2: Sử dụng đệ quy
+    """
+    # Base case
+    if n == 0:
+        return 0
+    
+    # Recursive case
+    return (n % 10) + sum_of_digits_recursive(n // 10)
+
+def sum_of_digits_string(n):
+    """
+    Phương pháp 3: Chuyển thành chuỗi
+    """
+    return sum(int(digit) for digit in str(n))
+
+def demo_sum_of_digits(n):
+    """Demo với giải thích chi tiết"""
+    print(f"\n=== DEMO: Tính tổng chữ số của {n} ===")
+    
+    # Hiển thị quá trình tính bằng vòng lặp
+    print(f"\nPhương pháp 1 - Vòng lặp:")
+    temp = n
+    total = 0
+    
+    while temp != 0:
+        digit = temp % 10
+        total += digit
+        print(f"  {temp} % 10 = {digit}, tổng = {total}, còn lại = {temp // 10}")
+        temp //= 10
+    
+    print(f"Kết quả: {total}")
+    
+    # So sánh các phương pháp
+    print(f"\nSo sánh kết quả:")
+    print(f"  Vòng lặp: {sum_of_digits_loop(n)}")
+    print(f"  Đệ quy:   {sum_of_digits_recursive(n)}")
+    print(f"  Chuỗi:    {sum_of_digits_string(n)}")
+
+def main():
+    print("CHUYÊN ĐỀ: TÍNH TỔNG CÁC CHỮ SỐ")
+    print("=================================")
+    
+    # Test với các ví dụ
+    demo_sum_of_digits(687)
+    demo_sum_of_digits(12)
+    demo_sum_of_digits(12345)
+
+if __name__ == "__main__":
+    main()
+```
+
+---
+
+## 5. SO SÁNH CÁC PHƯƠNG PHÁP
+
+### 📊 Bảng so sánh
+
+| Phương pháp | Độ phức tạp thời gian | Độ phức tạp không gian | Ưu điểm | Nhược điểm |
+|-------------|----------------------|------------------------|---------|------------|
+| **Vòng lặp** | O(log n) | O(1) | Hiệu quả về bộ nhớ | Code dài hơn |
+| **Đệ quy** | O(log n) | O(log n) | Code ngắn gọn | Tốn bộ nhớ stack |
+| **Chuỗi** | O(log n) | O(log n) | Dễ hiểu | Chậm hơn do conversion |
+
+### 🎯 Khi nào dùng phương pháp nào?
+
+- **Vòng lặp**: Phù hợp nhất cho hầu hết trường hợp
+- **Đệ quy**: Khi muốn code ngắn gọn và số không quá lớn
+- **Chuỗi**: Khi cần xử lý số rất lớn (BigInteger)
+
+---
+
+## 6. BÀI TẬP THỰC HÀNH
+
+### 📝 Bài tập cơ bản
+
+**Bài 1**: Viết chương trình nhập một số và xuất tổng các chữ số.
+
+**Bài 2**: Viết hàm kiểm tra một số có chia hết cho 9 không bằng cách sử dụng tổng chữ số.
+*Gợi ý: Một số chia hết cho 9 khi tổng các chữ số chia hết cho 9*
+
+**Bài 3**: Tính tổng chữ số của tất cả các số từ 1 đến n.
+
+### 🔥 Bài tập nâng cao
+
+**Bài 4**: Viết hàm tính "digital root" - lặp tính tổng chữ số cho đến khi được số có 1 chữ số.
+```
+Ví dụ: 9875 → 9+8+7+5 = 29 → 2+9 = 11 → 1+1 = 2
+```
+
+**Bài 5**: Tìm số nhỏ nhất có n chữ số mà tổng các chữ số bằng s.
+
+**Bài 6**: Cho một mảng các số, đếm có bao nhiêu số có tổng chữ số bằng k.
+
+### 💡 Bài tập ứng dụng
+
+**Bài 7**: Viết chương trình kiểm tra số thẻ tín dụng hợp lệ sử dụng thuật toán Luhn (sử dụng biến thể của tổng chữ số).
+
+**Bài 8**: Tạo game đoán số: máy tính cho gợi ý về tổng chữ số của số cần đoán.
+
+---
+
+## 7. TÓM TẮT
+
+### 🎯 Những điều cần nhớ
+
+1. **Ba phương pháp chính**: Vòng lặp, đệ quy, chuyển chuỗi
+2. **Phép toán quan trọng**: `n % 10` (lấy chữ số cuối), `n / 10` (bỏ chữ số cuối)
+3. **Độ phức tạp**: O(log₁₀(n)) - phụ thuộc vào số chữ số
+4. **Ứng dụng**: Kiểm tra chia hết, digital root, checksum
+
+### 🚀 Kỹ năng đã học
+
+- Phân tích bài toán và tìm nhiều cách giải
+- Hiểu về độ phức tạp thuật toán
+- Sử dụng phép chia lấy dư và chia nguyên
+- Viết và so sánh các thuật toán khác nhau
+
+### 📈 Bước tiếp theo
+
+- Thực hành các bài tập trong chuyên đề
+- Áp dụng vào các bài toán liên quan (digital root, checksum)
+- Tìm hiểu thêm về number theory và modular arithmetic
+
+---
+
+**🎓 Chúc các em học tốt và áp dụng hiệu quả kiến thức đã học!**
