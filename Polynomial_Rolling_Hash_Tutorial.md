@@ -1,20 +1,5 @@
 # Chuyên đề: Polynomial Rolling Hash
 
-## Mục lục
-
-1. [Giới thiệu](#1-giới-thiệu)
-2. [Hàm băm đa thức](#2-hàm-băm-đa-thức)
-3. [Lựa chọn tham số](#3-lựa-chọn-tham-số)
-4. [Cài đặt cơ bản](#4-cài-đặt-cơ-bản)
-5. [Vấn đề va chạm và Double Hashing](#5-vấn-đề-va-chạm-và-double-hashing)
-6. [Tính hash xâu con trong O(1)](#6-tính-hash-xâu-con-trong-o1)
-7. [Các kỹ thuật nâng cao](#7-các-kỹ-thuật-nâng-cao)
-8. [Ứng dụng](#8-ứng-dụng)
-9. [Bài tập thực hành](#9-bài-tập-thực-hành)
-10. [Lỗi thường gặp](#10-lỗi-thường-gặp)
-
----
-
 ## 1. Giới thiệu
 
 ### 1.1. Hàm băm là gì?
@@ -352,7 +337,7 @@ ll getSubstringHash(int l, int r) {
 
 Khi thay đổi $s[i]$ từ $c_1$ sang $c_2$:
 
-$$\text{hash\_new} = \text{hash\_old} - c_1 \cdot p^i + c_2 \cdot p^i \mod m$$
+$$\text{hash-new} = \text{hash-old} - c_1 \cdot p^i + c_2 \cdot p^i \mod m$$
 
 ```cpp
 ll updateHash(ll old_hash, int pos, char old_char, char new_char) {
@@ -563,71 +548,3 @@ struct PalindromeHash {
 | [Palindrome Queries](https://cses.fi/problemset/task/2420) | CSES | Hash + Segment Tree |
 
 ---
-
-## 10. Lỗi thường gặp
-
-### 10.1. Overflow
-
-```cpp
-// SAI: Tràn số trước khi mod
-ll hash = (hash + s[i] * p_pow[i]) % MOD;
-
-// ĐÚNG: Ép kiểu hoặc mod từng bước
-ll hash = (hash + (ll)s[i] * p_pow[i] % MOD) % MOD;
-```
-
-### 10.2. Số âm khi trừ
-
-```cpp
-// SAI: Kết quả có thể âm
-ll result = (h[r+1] - h[l] * pw[len]) % MOD;
-
-// ĐÚNG: Cộng MOD trước khi mod
-ll result = (h[r+1] - h[l] * pw[len] % MOD + MOD) % MOD;
-```
-
-### 10.3. Off-by-one trong chỉ số
-
-```cpp
-// Cẩn thận với 0-indexed vs 1-indexed
-// h[i] thường là hash của s[0..i-1]
-// Xâu con s[l..r] có độ dài len = r - l + 1
-```
-
-### 10.4. Quên tiền xử lý lũy thừa
-
-```cpp
-// Luôn tiền xử lý pw[] với kích thước đủ lớn
-// pw[0] = 1, không phải pw[0] = BASE
-```
-
-### 10.5. Dùng single hash trong contest quan trọng
-
-```cpp
-// NGUY HIỂM: Có thể bị hack
-ll hash = computeHash(s);
-
-// AN TOÀN: Dùng double hash
-pair<ll, ll> hash = computeDoubleHash(s);
-```
-
----
-
-## Tổng kết
-
-| Khía cạnh | Khuyến nghị |
-|-----------|-------------|
-| **Base** | 31 hoặc 37 (chữ thường), 131 (mọi ký tự) |
-| **Modulo** | $10^9 + 7$ và $10^9 + 9$ |
-| **Số lượng hash** | Double hash để tránh collision |
-| **Công thức** | Lũy thừa giảm dần (không cần inverse) |
-| **Tối ưu tốc độ** | Natural overflow với `unsigned long long` |
-
-**Polynomial Rolling Hash** là kỹ thuật mạnh mẽ và linh hoạt, được sử dụng rộng rãi trong competitive programming và các ứng dụng xử lý chuỗi. Việc nắm vững kỹ thuật này sẽ giúp bạn giải quyết nhiều bài toán string một cách hiệu quả.
-
----
-
-*Tài liệu tham khảo:*
-- [GeeksforGeeks - String hashing using Polynomial rolling hash function](https://www.geeksforgeeks.org/string-hashing-using-polynomial-rolling-hash-function/)
-- [CP-Algorithms - String Hashing](https://cp-algorithms.com/string/string-hashing.html)
-- [CSES Problem Set - String Algorithms](https://cses.fi/problemset/)
