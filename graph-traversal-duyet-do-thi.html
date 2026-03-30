@@ -1,0 +1,742 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Minh hoạ Duyệt Đồ Thị — BFS & DFS</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700&family=Be+Vietnam+Pro:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
+
+:root{
+  --bg:#0b1120;--panel:#111b2e;--card:#182138;--card2:#1c2844;
+  --bdr:#263354;--bdr2:#344470;
+  --tx:#e2e8f4;--tx2:#8494b8;--tx3:#566a94;
+  --green:#22d3a7;--orange:#f59e0b;--yellow:#fbbf24;
+  --blue:#38bdf8;--red:#f87171;--purple:#a78bfa;
+  --mono:'JetBrains Mono',monospace;
+  --body:'Be Vietnam Pro',sans-serif;
+}
+
+html{font-size:14.5px}
+body{font-family:var(--body);background:var(--bg);color:var(--tx);min-height:100vh}
+
+/* ── HEADER ── */
+.hdr{text-align:center;padding:24px 16px 8px}
+.hdr-tag{display:inline-block;font:600 .65rem/.9 var(--mono);letter-spacing:2px;text-transform:uppercase;color:var(--green);background:#22d3a712;border:1px solid #22d3a730;padding:5px 14px;border-radius:99px;margin-bottom:10px}
+.hdr h1{font-size:1.7rem;font-weight:800;background:linear-gradient(135deg,var(--green),var(--yellow),var(--orange));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+.hdr p{color:var(--tx2);font-size:.85rem;font-weight:300;margin-top:4px}
+
+/* ── TOOLBAR ── */
+.toolbar{display:flex;align-items:center;justify-content:center;gap:8px;flex-wrap:wrap;padding:12px 20px}
+
+.toggle{display:flex;background:var(--card);border:1px solid var(--bdr);border-radius:10px;overflow:hidden}
+.toggle button{font:600 .78rem/1 var(--mono);padding:9px 24px;border:none;cursor:pointer;background:0;color:var(--tx2);transition:.25s}
+.toggle button:hover{color:var(--tx)}
+.toggle button.on-bfs{background:#22d3a715;color:var(--green);box-shadow:inset 0 -2px 0 var(--green)}
+.toggle button.on-dfs{background:#f59e0b15;color:var(--orange);box-shadow:inset 0 -2px 0 var(--orange)}
+
+.btn{font:600 .74rem/1 var(--mono);padding:9px 18px;border-radius:10px;border:1px solid var(--bdr);background:var(--card);color:var(--tx);cursor:pointer;transition:.2s;display:flex;align-items:center;gap:5px;white-space:nowrap}
+.btn:hover{background:var(--card2);border-color:var(--bdr2)}
+.btn:active{transform:scale(.97)}
+.btn.go{border-color:#22d3a740;color:var(--green)}
+.btn.go.dfs-mode{border-color:#f59e0b40;color:var(--orange)}
+.btn.rst{border-color:#f8717140;color:var(--red)}
+
+.speed{display:flex;align-items:center;gap:6px;font:.7rem var(--mono);color:var(--tx3)}
+.speed input[type=range]{-webkit-appearance:none;width:70px;height:3px;border-radius:3px;background:var(--bdr);outline:0}
+.speed input::-webkit-slider-thumb{-webkit-appearance:none;width:12px;height:12px;border-radius:50%;background:var(--yellow);cursor:pointer}
+
+/* ── SELECTORS ── */
+.selectors{display:flex;flex-wrap:wrap;gap:6px;justify-content:center;padding:6px 20px 10px}
+.selectors label{font:600 .72rem/1 var(--mono);color:var(--tx3);align-self:center;margin-right:2px}
+.chip{font:600 .68rem/1 var(--mono);padding:6px 14px;border-radius:99px;border:1px solid var(--bdr);background:var(--card);color:var(--tx3);cursor:pointer;transition:.2s}
+.chip:hover{border-color:var(--bdr2);color:var(--tx2)}
+.chip.on{border-color:var(--blue);background:#38bdf812;color:var(--blue)}
+
+.src-bar{display:flex;align-items:center;gap:6px;justify-content:center;padding:4px 20px 14px;font:.76rem var(--mono);color:var(--tx2)}
+.src-bar .nb{width:30px;height:30px;border-radius:50%;border:2px solid var(--bdr);background:var(--card);color:var(--tx);font:700 .78rem var(--mono);cursor:pointer;transition:.2s}
+.src-bar .nb:hover{border-color:var(--yellow);color:var(--yellow)}
+.src-bar .nb.on{border-color:var(--yellow);background:#fbbf2418;color:var(--yellow)}
+
+/* ── MAIN GRID ── */
+.grid{display:grid;grid-template-columns:1fr 320px;gap:16px;padding:0 20px 40px;max-width:1320px;margin:0 auto;align-items:start}
+@media(max-width:920px){.grid{grid-template-columns:1fr}}
+
+/* ── GRAPH PANEL ── */
+.gpanel{background:var(--panel);border:1px solid var(--bdr);border-radius:16px;position:relative;overflow:hidden}
+.gpanel svg{display:block;width:100%;height:auto}
+
+/* Action Banner */
+.action-banner{position:absolute;top:14px;left:50%;transform:translateX(-50%);z-index:10;
+  font:600 .82rem/1.4 var(--mono);padding:8px 22px;border-radius:10px;
+  background:rgba(11,17,32,.92);border:1px solid var(--bdr2);color:var(--tx);
+  backdrop-filter:blur(6px);pointer-events:none;text-align:center;
+  opacity:0;transition:opacity .3s;max-width:92%;white-space:nowrap}
+.action-banner.show{opacity:1}
+.action-banner .hi{color:var(--yellow);font-weight:700}
+.action-banner .gr{color:var(--green)}
+.action-banner .or{color:var(--orange)}
+.action-banner .bl{color:var(--blue)}
+.action-banner .rd{color:var(--red)}
+
+/* ── SVG STYLES ── */
+.edge{stroke:var(--bdr);stroke-width:2.5;stroke-linecap:round;transition:stroke .5s,stroke-width .4s,opacity .4s}
+.edge.tree-bfs{stroke:var(--green);stroke-width:3;opacity:.5}
+.edge.tree-dfs{stroke:var(--orange);stroke-width:3;opacity:.5}
+.edge.active{stroke:var(--yellow);stroke-width:4;opacity:1;stroke-dasharray:7 5;animation:edgeDash .4s linear infinite}
+.edge.checking{stroke:var(--purple);stroke-width:3.5;opacity:.7;stroke-dasharray:4 4;animation:edgeDash .5s linear infinite}
+
+@keyframes edgeDash{to{stroke-dashoffset:-12}}
+
+.node-ring{fill:none;stroke:transparent;stroke-width:0;transition:stroke .4s,stroke-width .4s}
+
+.ncircle{stroke-width:2.5;transition:fill .4s,stroke .4s}
+
+/* Node states */
+.ncircle.s-default{fill:#263354;stroke:#3a5080}
+.ncircle.s-inqueue{fill:var(--blue);stroke:#2d9ed4}
+.ncircle.s-current{fill:var(--yellow);stroke:#e6a817}
+.ncircle.s-done-bfs{fill:var(--green);stroke:#1aad89}
+.ncircle.s-done-dfs{fill:var(--orange);stroke:#d98b09}
+
+/* Pulsing ring on current node */
+.node-ring.pulse{stroke:var(--yellow);stroke-width:3;animation:ringPulse 1s ease-in-out infinite}
+@keyframes ringPulse{0%,100%{r:28;opacity:.7}50%{r:40;opacity:0}}
+
+.nlabel{font:700 16px var(--mono);text-anchor:middle;dominant-baseline:central;pointer-events:none;transition:fill .4s}
+.nlabel.dark{fill:#0b1120}
+.nlabel.light{fill:#fff}
+
+/* dist label below node */
+.ndist{font:600 11px var(--mono);text-anchor:middle;fill:var(--tx3);transition:fill .4s}
+.ndist.updated{fill:var(--yellow)}
+
+/* ── SIDEBAR ── */
+.side{display:flex;flex-direction:column;gap:12px}
+.card{background:var(--panel);border:1px solid var(--bdr);border-radius:12px;padding:14px 16px}
+.card-t{font:700 .62rem/1 var(--mono);letter-spacing:1.5px;text-transform:uppercase;color:var(--tx3);margin-bottom:10px;display:flex;align-items:center;gap:6px}
+.dot{width:7px;height:7px;border-radius:50%;display:inline-block}
+.dot-g{background:var(--green)}.dot-o{background:var(--orange)}.dot-y{background:var(--yellow)}.dot-b{background:var(--blue)}
+
+/* ── PSEUDOCODE ── */
+.pbox{font:.68rem/1.9 var(--mono);color:var(--tx3)}
+.pline{padding:1px 8px;border-radius:4px;transition:background .3s,color .3s;white-space:pre}
+.pline.on{background:#fbbf2412;color:var(--yellow)}
+.pline .kw{color:var(--red)}.pline .fn{color:var(--green)}.pline .cmt{color:var(--tx3);font-style:italic}
+
+/* ── DS (queue/stack) ── */
+.ds-wrap{min-height:42px;display:flex;align-items:center;gap:5px;flex-wrap:wrap}
+.ds-cell{width:36px;height:36px;display:inline-flex;align-items:center;justify-content:center;border-radius:8px;font:700 .9rem var(--mono);animation:pop .3s cubic-bezier(.34,1.56,.64,1) both}
+.ds-cell.bfs{background:#22d3a715;border:1.5px solid #22d3a750;color:var(--green)}
+.ds-cell.dfs{background:#f59e0b15;border:1.5px solid #f59e0b50;color:var(--orange)}
+.ds-cell.fresh{box-shadow:0 0 12px #fbbf2455}
+.ds-empty{color:var(--tx3);font:.74rem var(--mono);font-style:italic}
+.ds-lbl{display:flex;justify-content:space-between;font:.58rem var(--mono);color:var(--tx3);margin-top:5px;letter-spacing:.5px}
+
+@keyframes pop{from{transform:scale(.4);opacity:0}to{transform:scale(1);opacity:1}}
+
+/* ── VISITED ── */
+.vis-wrap{display:flex;gap:3px;flex-wrap:wrap;min-height:30px;align-items:center}
+.vis-chip{width:30px;height:30px;display:inline-flex;align-items:center;justify-content:center;border-radius:7px;font:700 .82rem var(--mono);animation:pop .3s cubic-bezier(.34,1.56,.64,1) both}
+.vis-chip.bfs{background:#22d3a718;color:var(--green)}
+.vis-chip.dfs{background:#f59e0b18;color:var(--orange)}
+.vis-arr{color:var(--tx3);font:.6rem var(--mono)}
+
+.step-badge{font:.72rem var(--mono);color:var(--tx3);margin-bottom:8px}
+.step-badge b{color:var(--yellow);background:var(--card);padding:2px 8px;border-radius:5px;margin-left:4px}
+
+/* ── LOG ── */
+.log{max-height:200px;overflow-y:auto;display:flex;flex-direction:column;gap:3px}
+.log::-webkit-scrollbar{width:3px}
+.log::-webkit-scrollbar-thumb{background:var(--bdr);border-radius:3px}
+.log-e{font:.68rem/1.5 var(--mono);color:var(--tx2);padding:4px 10px;border-radius:5px;background:var(--card);animation:sUp .2s ease both}
+.log-e.hl{background:#fbbf2410;border-left:2px solid var(--yellow);color:var(--tx)}
+.log-e .g{color:var(--green);font-weight:600}
+.log-e .o{color:var(--orange);font-weight:600}
+.log-e .y{color:var(--yellow);font-weight:600}
+.log-e .b{color:var(--blue);font-weight:600}
+@keyframes sUp{from{transform:translateY(5px);opacity:0}to{transform:translateY(0);opacity:1}}
+
+/* ── LEGEND ── */
+.legend{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.leg-i{display:flex;align-items:center;gap:5px;font:.68rem var(--mono);color:var(--tx2)}
+.leg-sw{width:16px;height:16px;border-radius:50%;border:2px solid}
+.sw-def{background:#263354;border-color:#3a5080}
+.sw-inq{background:var(--blue);border-color:#2d9ed4}
+.sw-cur{background:var(--yellow);border-color:#e6a817;box-shadow:0 0 8px #fbbf2444}
+.sw-done-b{background:var(--green);border-color:#1aad89}
+.sw-done-d{background:var(--orange);border-color:#d98b09}
+.leg-edge{width:24px;height:3px;border-radius:2px;display:inline-block}
+.le-active{background:var(--yellow);box-shadow:0 0 6px #fbbf2444}
+.le-check{background:var(--purple)}
+.le-tree-b{background:var(--green);opacity:.5}
+.le-tree-d{background:var(--orange);opacity:.5}
+</style>
+</head>
+<body>
+
+<div class="hdr">
+  <div class="hdr-tag">Chuyên đề Đồ thị — Tiết 3, 4, 5</div>
+  <h1>Minh hoạ Duyệt Đồ Thị</h1>
+  <p>Trực quan từng bước BFS (chiều rộng) và DFS (chiều sâu)</p>
+</div>
+
+<div class="selectors">
+  <label>Đồ thị:</label>
+  <button class="chip on" onclick="pickGraph(0)">Mẫu 6 đỉnh</button>
+  <button class="chip" onclick="pickGraph(1)">Hai phía</button>
+  <button class="chip" onclick="pickGraph(2)">Chu trình</button>
+  <button class="chip" onclick="pickGraph(3)">Không liên thông</button>
+  <button class="chip" onclick="pickGraph(4)">Cây nhị phân</button>
+</div>
+
+<div class="src-bar">
+  <span style="font-weight:600">Đỉnh nguồn:</span>
+  <span id="srcBtns"></span>
+</div>
+
+<div class="toolbar">
+  <div class="toggle">
+    <button id="tBFS" class="on-bfs" onclick="pickAlgo('bfs')">BFS</button>
+    <button id="tDFS" onclick="pickAlgo('dfs')">DFS</button>
+  </div>
+  <button class="btn go" id="btnStep" onclick="doStep()">▶ Bước tiếp</button>
+  <button class="btn" id="btnAuto" onclick="toggleAuto()"><span id="autoIco">▶▶</span> Tự động</button>
+  <button class="btn rst" onclick="reset()">↺ Đặt lại</button>
+  <div class="speed"><span>Chậm</span><input type="range" id="spd" min="200" max="2000" value="900" step="100"><span>Nhanh</span></div>
+</div>
+
+<div class="grid">
+  <div class="gpanel">
+    <div class="action-banner" id="banner"></div>
+    <svg id="svg" viewBox="0 0 700 440" xmlns="http://www.w3.org/2000/svg">
+      <defs>
+        <filter id="glow"><feGaussianBlur stdDeviation="4" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
+      </defs>
+      <g id="gEdges"></g>
+      <g id="gNodes"></g>
+    </svg>
+  </div>
+
+  <div class="side">
+    <div class="card">
+      <div class="card-t"><span class="dot dot-y"></span>Giả mã</div>
+      <div class="pbox" id="pbox"></div>
+    </div>
+    <div class="card">
+      <div class="card-t"><span class="dot dot-b"></span><span id="dsTitle">Hàng đợi (Queue)</span></div>
+      <div class="ds-wrap" id="dsWrap"><span class="ds-empty">— trống —</span></div>
+      <div class="ds-lbl" id="dsLbl"><span>← ĐẦU (ra)</span><span>CUỐI (vào) →</span></div>
+    </div>
+    <div class="card">
+      <div class="card-t"><span class="dot" id="visDot"></span>Thứ tự thăm</div>
+      <div class="step-badge">Bước: <b id="stepN">0</b> / <span id="totalN">0</span></div>
+      <div class="vis-wrap" id="visWrap"><span class="ds-empty">Nhấn "Bước tiếp" để bắt đầu</span></div>
+    </div>
+    <div class="card">
+      <div class="card-t"><span class="dot dot-b"></span>Nhật ký chi tiết</div>
+      <div class="log" id="logBox"></div>
+    </div>
+    <div class="card">
+      <div class="card-t">Chú giải</div>
+      <div class="legend" id="legendBox">
+        <div class="leg-i"><div class="leg-sw sw-def"></div>Chưa thăm</div>
+        <div class="leg-i"><div class="leg-sw sw-inq"></div>Trong Queue/Stack</div>
+        <div class="leg-i"><div class="leg-sw sw-cur"></div>Đang xử lý</div>
+        <div class="leg-i" id="legDone"><div class="leg-sw sw-done-b"></div>Đã thăm xong</div>
+        <div class="leg-i"><div class="leg-edge le-active"></div>Đang xét cạnh</div>
+        <div class="leg-i"><div class="leg-edge le-check"></div>Cạnh bỏ qua</div>
+        <div class="leg-i" id="legTree"><div class="leg-edge le-tree-b"></div>Cạnh đã duyệt</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+// ══════════════════════════════════════
+// GRAPH DATA
+// ══════════════════════════════════════
+const GRAPHS=[
+  {name:'Mẫu 6 đỉnh',n:6,edges:[[1,2],[1,3],[2,4],[2,5],[3,4],[4,6]],
+   pos:{1:[150,90],2:[350,90],3:[150,310],4:[350,310],5:[550,90],6:[550,310]}},
+  {name:'Hai phía',n:4,edges:[[1,2],[2,3],[3,4],[4,1]],
+   pos:{1:[200,100],2:[500,100],3:[500,340],4:[200,340]}},
+  {name:'Chu trình',n:5,edges:[[1,2],[2,3],[3,4],[4,5],[5,2],[1,3]],
+   pos:{1:[130,140],2:[320,70],3:[530,140],4:[460,330],5:[200,330]}},
+  {name:'Không liên thông',n:7,edges:[[1,2],[2,3],[4,5],[6,7]],
+   pos:{1:[120,120],2:[300,120],3:[210,320],4:[460,120],5:[460,320],6:[600,120],7:[600,320]}},
+  {name:'Cây nhị phân',n:7,edges:[[1,2],[1,3],[2,4],[2,5],[3,6],[3,7]],
+   pos:{1:[350,65],2:[200,195],3:[500,195],4:[120,350],5:[280,350],6:[420,350],7:[580,350]}}
+];
+
+// ══════════════════════════════════════
+// STATE
+// ══════════════════════════════════════
+let gIdx=0, algo='bfs', src=1, N=0, adj={};
+let steps=[], stepIdx=-1, autoTimer=null;
+let nodeState={}, edgeState={}, dsContent=[], visitList=[], distArr={};
+// Track which newly changed items to highlight
+let freshDS=new Set(), freshNode=null;
+
+// ══════════════════════════════════════
+// PSEUDOCODE
+// ══════════════════════════════════════
+const P_BFS=[
+  {t:'<span class="kw">function</span> <span class="fn">BFS</span>(source):',id:'b0'},
+  {t:'  queue ← [source]',id:'b1'},
+  {t:'  visited[source] ← true; dist[source] ← 0',id:'b2'},
+  {t:'',id:'b3'},
+  {t:'  <span class="kw">while</span> queue ≠ rỗng:',id:'b4'},
+  {t:'    u ← queue.<span class="fn">dequeue</span>()   <span class="cmt">// lấy đầu</span>',id:'b5'},
+  {t:'    <span class="kw">for</span> v <span class="kw">in</span> adj[u]:      <span class="cmt">// xét đỉnh kề</span>',id:'b6'},
+  {t:'      <span class="kw">if</span> !visited[v]:',id:'b7'},
+  {t:'        visited[v] ← true',id:'b8'},
+  {t:'        dist[v] ← dist[u] + 1',id:'b9'},
+  {t:'        queue.<span class="fn">enqueue</span>(v)',id:'b10'},
+  {t:'      <span class="kw">else</span>: <span class="cmt">// đã thăm → bỏ qua</span>',id:'b11'},
+  {t:'  <span class="cmt">// ✓ Kết thúc BFS</span>',id:'b12'},
+];
+const P_DFS=[
+  {t:'<span class="kw">function</span> <span class="fn">DFS</span>(source):',id:'d0'},
+  {t:'  stack ← [source]',id:'d1'},
+  {t:'',id:'d2'},
+  {t:'  <span class="kw">while</span> stack ≠ rỗng:',id:'d3'},
+  {t:'    u ← stack.<span class="fn">pop</span>()       <span class="cmt">// lấy đỉnh</span>',id:'d4'},
+  {t:'    <span class="kw">if</span> visited[u]: <span class="kw">continue</span>    <span class="cmt">// bỏ qua</span>',id:'d5'},
+  {t:'    visited[u] ← true',id:'d6'},
+  {t:'    <span class="kw">for</span> v <span class="kw">in</span> adj[u] <span class="cmt">(ngược)</span>:',id:'d7'},
+  {t:'      <span class="kw">if</span> !visited[v]:',id:'d8'},
+  {t:'        stack.<span class="fn">push</span>(v)',id:'d9'},
+  {t:'      <span class="kw">else</span>: <span class="cmt">// đã thăm → bỏ qua</span>',id:'d10'},
+  {t:'  <span class="cmt">// ✓ Kết thúc DFS</span>',id:'d11'},
+];
+
+// ══════════════════════════════════════
+// BUILD ALL STEPS (pre-computed)
+// ══════════════════════════════════════
+function buildSteps(){
+  steps=[];
+  const g=GRAPHS[gIdx]; N=g.n;
+  adj={};
+  for(let i=1;i<=N;i++) adj[i]=[];
+  for(const[u,v]of g.edges){adj[u].push(v);adj[v].push(u)}
+  for(let i=1;i<=N;i++) adj[i].sort((a,b)=>a-b);
+  if(algo==='bfs') buildBFS(); else buildDFS();
+}
+
+function buildBFS(){
+  const vis={}, dist={};
+  for(let i=1;i<=N;i++){vis[i]=false;dist[i]=-1}
+  const queue=[src];
+  vis[src]=true; dist[src]=0;
+
+  // Init step
+  steps.push({
+    desc:`Đưa đỉnh <span class="hi">${src}</span> vào hàng đợi, đánh dấu visited, dist=0`,
+    pseudo:'b1',
+    nodes:{[src]:'inqueue'}, edges:{},
+    ds:[src], visit:[], dists:{[src]:0},
+    log:`Khởi tạo: enqueue(<span class="b">${src}</span>), dist[${src}]=0`
+  });
+
+  while(queue.length>0){
+    const u=queue.shift();
+    const dsSnap=[...queue];
+
+    // Dequeue step
+    steps.push({
+      desc:`Dequeue đỉnh <span class="hi">${u}</span> → bắt đầu xử lý (vàng)`,
+      pseudo:'b5',
+      nodes:{[u]:'current'}, edges:{},
+      ds:[...dsSnap], visit:null,
+      log:`<span class="y">Dequeue(${u})</span> — xét các đỉnh kề [${adj[u].join(', ')}]`
+    });
+
+    const neighbors=adj[u];
+    for(const v of neighbors){
+      if(!vis[v]){
+        vis[v]=true;
+        dist[v]=dist[u]+1;
+        queue.push(v);
+
+        steps.push({
+          desc:`Cạnh <span class="hi">${u}</span>–<span class="bl">${v}</span>: chưa thăm → <span class="bl">enqueue(${v})</span>, dist=${dist[v]}`,
+          pseudo:'b10',
+          nodes:{[v]:'inqueue'},
+          edges:{[ek(u,v)]:'active'},
+          ds:[...queue],
+          dists:{[v]:dist[v]},
+          log:`  Cạnh ${u}–<span class="b">${v}</span>: enqueue, dist[${v}]=${dist[v]}`
+        });
+      } else {
+        steps.push({
+          desc:`Cạnh <span class="hi">${u}</span>–${v}: đỉnh ${v} <span class="rd">đã thăm</span> → bỏ qua`,
+          pseudo:'b11',
+          edges:{[ek(u,v)]:'checking'},
+          ds:[...queue],
+          log:`  Cạnh ${u}–${v}: đã thăm → bỏ qua`
+        });
+      }
+    }
+
+    // Done with u
+    steps.push({
+      desc:`Hoàn thành đỉnh <span class="gr">${u}</span> → đánh dấu xong (xanh)`,
+      pseudo:'b4',
+      nodes:{[u]:'done'}, clearEdges:true,
+      ds:[...queue], visitPush:u,
+      log:`<span class="g">✓ Đỉnh ${u} hoàn thành</span>`
+    });
+  }
+
+  steps.push({
+    desc:'🏁 <span class="gr">BFS kết thúc!</span> Đã thăm tất cả đỉnh liên thông.',
+    pseudo:'b12', ds:[], finish:true,
+    log:'<span class="y">🏁 BFS hoàn thành!</span>'
+  });
+}
+
+function buildDFS(){
+  const vis={}, dist={};
+  for(let i=1;i<=N;i++){vis[i]=false;dist[i]=-1}
+  const stack=[src];
+  dist[src]=0;
+
+  steps.push({
+    desc:`Đưa đỉnh <span class="hi">${src}</span> vào ngăn xếp`,
+    pseudo:'d1',
+    nodes:{[src]:'inqueue'}, edges:{},
+    ds:[src], visit:[], dists:{[src]:0},
+    log:`Khởi tạo: push(<span class="o">${src}</span>) vào stack`
+  });
+
+  while(stack.length>0){
+    const u=stack.pop();
+    const dsSnap=[...stack];
+
+    if(vis[u]){
+      steps.push({
+        desc:`Pop đỉnh <span class="hi">${u}</span> — <span class="rd">đã thăm rồi</span> → bỏ qua`,
+        pseudo:'d5', ds:[...dsSnap],
+        log:`Pop(${u}): đã thăm → bỏ qua`
+      });
+      continue;
+    }
+
+    // Pop step
+    steps.push({
+      desc:`Pop đỉnh <span class="hi">${u}</span> → bắt đầu xử lý (vàng)`,
+      pseudo:'d4',
+      nodes:{[u]:'current'}, edges:{},
+      ds:[...dsSnap],
+      log:`<span class="y">Pop(${u})</span> — xét các đỉnh kề [${adj[u].join(', ')}]`
+    });
+
+    vis[u]=true;
+    const neighbors=adj[u];
+    const rev=[...neighbors].reverse();
+
+    for(const v of rev){
+      if(!vis[v]){
+        stack.push(v);
+        if(dist[v]===-1) dist[v]=dist[u]+1;
+
+        steps.push({
+          desc:`Cạnh <span class="hi">${u}</span>–<span class="bl">${v}</span>: chưa thăm → <span class="or">push(${v})</span>`,
+          pseudo:'d9',
+          nodes:{[v]:'inqueue'},
+          edges:{[ek(u,v)]:'active'},
+          ds:[...stack],
+          dists:{[v]:dist[v]},
+          log:`  Cạnh ${u}–<span class="o">${v}</span>: push vào stack`
+        });
+      } else {
+        steps.push({
+          desc:`Cạnh <span class="hi">${u}</span>–${v}: đỉnh ${v} <span class="rd">đã thăm</span> → bỏ qua`,
+          pseudo:'d10',
+          edges:{[ek(u,v)]:'checking'},
+          ds:[...stack],
+          log:`  Cạnh ${u}–${v}: đã thăm → bỏ qua`
+        });
+      }
+    }
+
+    // Done
+    steps.push({
+      desc:`Hoàn thành đỉnh <span class="or">${u}</span> → đánh dấu xong (cam)`,
+      pseudo:'d6',
+      nodes:{[u]:'done'}, clearEdges:true,
+      ds:[...stack], visitPush:u,
+      log:`<span class="o">✓ Đỉnh ${u} hoàn thành</span>`
+    });
+  }
+
+  steps.push({
+    desc:'🏁 <span class="or">DFS kết thúc!</span>',
+    pseudo:'d11', ds:[], finish:true,
+    log:'<span class="y">🏁 DFS hoàn thành!</span>'
+  });
+}
+
+// ══════════════════════════════════════
+// APPLY STEP
+// ══════════════════════════════════════
+function applyStep(s){
+  freshDS=new Set();
+  freshNode=null;
+
+  // Node changes (additive)
+  if(s.nodes){
+    for(const[id,st]of Object.entries(s.nodes)){
+      nodeState[id]=st;
+      freshNode=+id;
+    }
+  }
+
+  // Edge changes (additive)
+  if(s.edges){
+    for(const[k,cls]of Object.entries(s.edges)){
+      edgeState[k]=cls;
+    }
+  }
+
+  // Clear active/checking edges → mark as tree
+  if(s.clearEdges){
+    for(const k in edgeState){
+      if(edgeState[k]==='active'||edgeState[k]==='checking'){
+        edgeState[k]='tree';
+      }
+    }
+  }
+
+  // DS snapshot
+  if(s.ds!==undefined){
+    const prev=new Set(dsContent.map(String));
+    dsContent=[...s.ds];
+    for(const v of dsContent){
+      if(!prev.has(String(v))) freshDS.add(v);
+    }
+  }
+
+  // Visit
+  if(s.visitPush!==undefined) visitList.push(s.visitPush);
+  if(s.visit!==undefined && Array.isArray(s.visit)) visitList=[...s.visit];
+
+  // Dist
+  if(s.dists){
+    for(const[id,d]of Object.entries(s.dists)) distArr[id]=d;
+  }
+
+  // Pseudo
+  if(s.pseudo) highlightPseudo(s.pseudo);
+
+  // Banner
+  showBanner(s.desc||'');
+
+  // Log
+  if(s.log) addLog(s.log, s.finish||s.type==='done'||s.visitPush!==undefined);
+}
+
+// ══════════════════════════════════════
+// RENDERING
+// ══════════════════════════════════════
+function drawGraph(){
+  const g=GRAPHS[gIdx];
+  const eG=document.getElementById('gEdges');
+  const nG=document.getElementById('gNodes');
+  eG.innerHTML=''; nG.innerHTML='';
+
+  for(const[u,v]of g.edges){
+    const[x1,y1]=g.pos[u],[x2,y2]=g.pos[v];
+    const line=svgEl('line',{x1,y1,x2,y2,class:'edge',id:'e-'+ek(u,v)});
+    eG.appendChild(line);
+  }
+
+  for(let i=1;i<=g.n;i++){
+    const[cx,cy]=g.pos[i];
+    const grp=svgEl('g',{class:'node-g',id:'ng-'+i});
+    grp.appendChild(svgEl('circle',{cx,cy,r:28,class:'node-ring',id:'nr-'+i}));
+    grp.appendChild(svgEl('circle',{cx,cy,r:26,class:'ncircle s-default',id:'nc-'+i}));
+    const t=svgEl('text',{x:cx,y:cy,class:'nlabel dark',id:'nt-'+i});
+    t.textContent=i; grp.appendChild(t);
+    const d=svgEl('text',{x:cx,y:+cy+42,class:'ndist',id:'nd-'+i});
+    d.textContent='∞'; grp.appendChild(d);
+    nG.appendChild(grp);
+  }
+}
+
+function renderState(){
+  const g=GRAPHS[gIdx];
+  const dCls=algo==='bfs'?'done-bfs':'done-dfs';
+  const tCls=algo==='bfs'?'tree-bfs':'tree-dfs';
+
+  // Nodes
+  for(let i=1;i<=g.n;i++){
+    const st=nodeState[i]||'default';
+    const c=document.getElementById('nc-'+i);
+    const t=document.getElementById('nt-'+i);
+    const r=document.getElementById('nr-'+i);
+    const d=document.getElementById('nd-'+i);
+
+    c.setAttribute('class','ncircle s-'+(st==='done'?dCls:st));
+    t.setAttribute('class','nlabel '+(st==='default'?'dark':'light'));
+    r.setAttribute('class',st==='current'?'node-ring pulse':'node-ring');
+
+    const dv=distArr[i];
+    d.textContent=dv!==undefined&&dv>=0?'d='+dv:'∞';
+    d.setAttribute('class','ndist'+(dv!==undefined&&dv>=0?' updated':''));
+  }
+
+  // Edges
+  for(const[u,v]of g.edges){
+    const k=ek(u,v);
+    const el=document.getElementById('e-'+k);
+    if(!el)continue;
+    const st=edgeState[k]||'';
+    el.setAttribute('class','edge'+(st==='active'?' active':st==='checking'?' checking':st==='tree'?' '+tCls:''));
+  }
+
+  renderDS();
+  renderVis();
+  document.getElementById('stepN').textContent=Math.max(0,stepIdx+1);
+  document.getElementById('totalN').textContent=steps.length;
+}
+
+function renderDS(){
+  const w=document.getElementById('dsWrap');
+  const cls=algo==='bfs'?'bfs':'dfs';
+  if(!dsContent.length){
+    w.innerHTML='<span class="ds-empty">— trống —</span>'; return;
+  }
+  w.innerHTML=dsContent.map(v=>{
+    const f=freshDS.has(v)?' fresh':'';
+    return `<div class="ds-cell ${cls}${f}">${v}</div>`;
+  }).join('');
+}
+
+function renderVis(){
+  const w=document.getElementById('visWrap');
+  const cls=algo==='bfs'?'bfs':'dfs';
+  if(!visitList.length){
+    w.innerHTML='<span class="ds-empty">Nhấn "Bước tiếp" để bắt đầu</span>'; return;
+  }
+  w.innerHTML=visitList.map((v,i)=>{
+    let h=`<div class="vis-chip ${cls}">${v}</div>`;
+    if(i<visitList.length-1) h+='<span class="vis-arr">→</span>';
+    return h;
+  }).join('');
+}
+
+function renderPseudo(){
+  const box=document.getElementById('pbox');
+  const lines=algo==='bfs'?P_BFS:P_DFS;
+  box.innerHTML=lines.map(l=>`<div class="pline" id="p-${l.id}">${l.t||'&nbsp;'}</div>`).join('');
+}
+
+function highlightPseudo(id){
+  document.querySelectorAll('.pline').forEach(e=>e.classList.remove('on'));
+  const el=document.getElementById('p-'+id);
+  if(el) el.classList.add('on');
+}
+
+function showBanner(html){
+  const b=document.getElementById('banner');
+  b.innerHTML=html;
+  b.classList.toggle('show',!!html);
+}
+
+function addLog(html,hl=false){
+  const box=document.getElementById('logBox');
+  const d=document.createElement('div');
+  d.className='log-e'+(hl?' hl':'');
+  d.innerHTML=html;
+  box.appendChild(d);
+  box.scrollTop=box.scrollHeight;
+}
+
+// ══════════════════════════════════════
+// CONTROLS
+// ══════════════════════════════════════
+function doStep(){
+  if(stepIdx>=steps.length-1)return;
+  stepIdx++;
+  applyStep(steps[stepIdx]);
+  renderState();
+  if(steps[stepIdx].finish) stopAuto();
+}
+
+function toggleAuto(){autoTimer?stopAuto():startAuto()}
+function startAuto(){
+  const sp=2200-parseInt(document.getElementById('spd').value);
+  autoTimer=setInterval(()=>{if(stepIdx>=steps.length-1){stopAuto();return}doStep()},sp);
+  document.getElementById('autoIco').textContent='⏸';
+}
+function stopAuto(){
+  clearInterval(autoTimer);autoTimer=null;
+  document.getElementById('autoIco').textContent='▶▶';
+}
+document.getElementById('spd').addEventListener('input',()=>{if(autoTimer){stopAuto();startAuto()}});
+
+function reset(){
+  stopAuto();
+  nodeState={};edgeState={};dsContent=[];visitList=[];distArr={};freshDS=new Set();freshNode=null;
+  stepIdx=-1;
+  document.getElementById('logBox').innerHTML='';
+  showBanner('');
+  buildSteps();
+  renderPseudo();
+  drawGraph();
+  renderState();
+}
+
+function pickAlgo(a){
+  algo=a;
+  document.getElementById('tBFS').className=a==='bfs'?'on-bfs':'';
+  document.getElementById('tDFS').className=a==='dfs'?'on-dfs':'';
+  document.getElementById('dsTitle').textContent=a==='bfs'?'Hàng đợi (Queue)':'Ngăn xếp (Stack)';
+  document.getElementById('dsLbl').innerHTML=a==='bfs'?'<span>← ĐẦU (ra)</span><span>CUỐI (vào) →</span>':'<span>ĐÁY ←</span><span>→ ĐỈNH (push/pop)</span>';
+  document.getElementById('btnStep').className='btn go'+(a==='dfs'?' dfs-mode':'');
+  document.getElementById('visDot').className='dot '+(a==='bfs'?'dot-g':'dot-o');
+  document.getElementById('legDone').innerHTML=a==='bfs'?'<div class="leg-sw sw-done-b"></div>Đã thăm xong':'<div class="leg-sw sw-done-d"></div>Đã thăm xong';
+  document.getElementById('legTree').innerHTML=a==='bfs'?'<div class="leg-edge le-tree-b"></div>Cạnh đã duyệt':'<div class="leg-edge le-tree-d"></div>Cạnh đã duyệt';
+  reset();
+}
+
+function pickGraph(i){
+  gIdx=i;
+  document.querySelectorAll('.chip').forEach((e,j)=>e.classList.toggle('on',j===i));
+  src=1; renderSrcBtns(); reset();
+}
+
+function renderSrcBtns(){
+  const g=GRAPHS[gIdx],c=document.getElementById('srcBtns');
+  c.innerHTML='';
+  for(let i=1;i<=g.n;i++){
+    const b=document.createElement('button');
+    b.className='nb'+(i===src?' on':'');
+    b.textContent=i;
+    b.onclick=()=>{src=i;renderSrcBtns();reset()};
+    c.appendChild(b);
+  }
+}
+
+// ══════════════════════════════════════
+// HELPERS
+// ══════════════════════════════════════
+function ek(u,v){return Math.min(u,v)+'-'+Math.max(u,v)}
+function svgEl(tag,attrs){
+  const el=document.createElementNS('http://www.w3.org/2000/svg',tag);
+  for(const[k,v]of Object.entries(attrs)) el.setAttribute(k,v);
+  return el;
+}
+
+// ══════════════════════════════════════
+// INIT
+// ══════════════════════════════════════
+renderSrcBtns();
+pickAlgo('bfs');
+</script>
+</body>
+</html>
